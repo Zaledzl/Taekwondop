@@ -2,10 +2,13 @@ package com.example.taekwondop;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import com.example.taekwondop.BLE.DeviceScanActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = null;
             switch (v.getId()){
                 case R.id.main_bluetooth:
-                    intent = new Intent(MainActivity.this,BluetoothActivity.class);
+                    intent = new Intent(MainActivity.this, DeviceScanActivity.class);
                     break;
                 case R.id.main_fight:
                     intent = new Intent(MainActivity.this,FightActivity.class);

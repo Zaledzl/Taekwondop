@@ -48,10 +48,18 @@
             android:label="跆拳道Fight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".BLE.BleSppActivity"
+            tools:ignore="InnerclassSeparator"
+            android:theme="@style/MyTheme"/>
+        <activity android:name=".BLE.DeviceScanActivity"
+            tools:ignore="InnerclassSeparator"
+            android:label="@string/app_name"
+            android:theme="@style/MyTheme"/>
+        <service android:name=".BLE.BluetoothLeService" android:enabled="true"
+            tools:ignore="InnerclassSeparator" />
     </application>
 
 </manifest>
