@@ -23,6 +23,32 @@ import java.util.HashMap;
  * This class includes a small subset of standard GATT attributes for demonstration purposes.
  * 这个类包括一小部分用于演示目的的标准GATT属性。
  */
+
+/**
+ * 1、profile
+ * profile可以理解为一种规范，一个标准的通信协议，它存在于从机中。蓝牙组织规定了一些标准的profile，
+ * 例如 HID OVER GATT ，防丢器 ，心率计等。每个profile中会包含多个service，每个service代表从机的一种能力。
+ *
+ * 2、service
+ * service可以理解为一个服务，在ble从机中，通过有多个服务，例如电量信息服务、系统信息服务等，每个service中又包含多个
+ * characteristic特征值。每个具体的characteristic特征值才是ble通信的主题。比如当前的电量是80%，所以会通过电量的
+ * characteristic特征值存在从机的profile里，这样主机就可以通过这个characteristic来读取80%这个数据
+ *
+ * 3、characteristic
+ * characteristic特征值，ble主从机的通信均是通过characteristic来实现，可以理解为一个标签，通过这个标签可以获取或者写入想要的内容。
+ *
+ * 4、UUID
+ * UUID，统一识别码，我们刚才提到的service和characteristic，都需要一个唯一的uuid来标识
+ *
+ * 整理一下，每个从机都会有一个叫做profile的东西存在，不管是上面的自定义的simpleprofile，还是标准的防丢器profile，
+ * 他们都是由一些列service组成，然后每个service又包含了多个characteristic，主机和从机之间的通信，均是通过characteristic来实现。
+ *
+ * 现在低功耗蓝牙（BLE）连接都是建立在 GATT (Generic Attribute Profile) 协议之上。
+ * GATT 是一个在蓝牙连接之上的发送和接收很短的数据段的通用规范，这些很短的数据段被称为属性（Attribute）。
+ *
+ *  它定义两个 BLE 设备通过叫做 Service 和 Characteristic 的东西进行通信。GATT 就是使用了 ATT（Attribute Protocol）协议，
+ *  ATT 协议把 Service, Characteristic遗迹对应的数据保存在一个查找表中，次查找表使用 16 bit ID 作为每一项的索引。
+ */
 public class BleSppGattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
 

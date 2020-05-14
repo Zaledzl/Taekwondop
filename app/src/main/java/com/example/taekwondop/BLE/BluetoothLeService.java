@@ -87,10 +87,11 @@ public class BluetoothLeService extends Service {
 
     public final static UUID UUID_BLE_SPP_NOTIFY = UUID.fromString(BleSppGattAttributes.BLE_SPP_Notify_Characteristic);
 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
+    // Implements callback methods for GATT events that the app cares about.  For example,connection change and services discovered.
+    // 为应用程序关心的GATT事件实现回调方法。例如，发现连接更改和服务。
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
+        // 连接方式改变的时候
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -111,6 +112,7 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
+        // 当服务被发现的时候
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // 默认先使用 B-0006/TL8266 服务发现
@@ -148,6 +150,7 @@ public class BluetoothLeService extends Service {
 
 
         @Override
+        // 当特征被读取的时候
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
@@ -157,6 +160,7 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
+        // 当特征被改变的时候
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
@@ -164,6 +168,7 @@ public class BluetoothLeService extends Service {
 
         //Will call this when write successful
         @Override
+        // 当特征被写的时候
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_WRITE_SUCCESSFUL);
@@ -172,11 +177,13 @@ public class BluetoothLeService extends Service {
         }
     };
 
+    // 更新广播
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
 
+    // 更新广播
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);

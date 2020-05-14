@@ -34,8 +34,13 @@ import java.util.TimerTask;
  * and display GATT services and characteristics supported by the device.  The Activity
  * communicates with {@code BluetoothLeService}, which in turn interacts with the
  * Bluetooth LE API.
+ *
+ * 对于一个给定的蓝牙低功耗设备，这个Activity提供给用户一个连接，显示数据的界面
+ * 显示设备支持的GATT服务和特点。这个Activ和{@code BluetoothLeService}通信，{@code BluetoothLeService}和蓝牙低功耗API进行互动
  */
 public class BleSppActivity extends Activity implements View.OnClickListener {
+    //Returns the simple name of the underlying class as given in the source code.
+    // Returns an empty string if the underlying class is anonymous.
     private final static String TAG = BleSppActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -76,19 +81,26 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
     private TimerTask task;
 
     // Code to manage Service lifecycle.
+    // 管理服务生命周期的代码
+    // ServiceConnection     Interface for monitoring the state of an application service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
+            // Activity与Service的通信方式有三种:其中第一种也是最简单的一种, 即LocalBinder方式
+            //特点:Activity和Service位于同一个进程内, 简单,方便,可以实现activity和service之间的函数互相调用.
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            // 如果初始化蓝牙服务失败，那就说明失败
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
+            // 根据设备地址，用蓝牙服务连接到设备
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
         }
 
+        // 在蓝牙服务断开连接的时候，要把初始化的实例赋值为NULL
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mBluetoothLeService = null;
@@ -99,8 +111,38 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
     // ACTION_GATT_CONNECTED: connected to a GATT server.
     // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
     // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
+    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read or notification operations.
+    // 处理由服务触发的各种事件。
+    // Base class for code that receives and handles broadcast intents
+    /**
+     * 广播接收器用于响应来自其他应用程序或者系统的广播消息。这些消息有时被称为事件或者意图。
+     * 例如，应用程序可以初始化广播来让其他的应用程序知道一些数据已经被下载到设备，并可以为他们所用。这样广播接收器可以定义适当的动作来拦截这些通信。
+     * 有以下两个重要的步骤来使系统的广播意图配合广播接收器工作。  创建广播接收器   注册广播接收器  还有一个附加的步骤，要实现自定义的意图，你必须创建并广播这些意图。
+     * 广播接收器需要实现为BroadcastReceiver类的子类，并重写onReceive()方法来接收以Intent对象为参数的消息。
+     * 应用程序通过在AndroidManifest.xml中注册广播接收器来监听制定的广播意图。
+     * 假设我们将要注册MyReceiver来监听系统产生的ACTION_BOOT_COMPLETED事件。该事件由Android系统的启动进程完成时发出。
+     *
+     * public class MyReceiver extends BroadcastReceiver {
+     *    @Override
+     *    public void onReceive(Context context, Intent intent) {
+     *       Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
+     *    }
+     * }
+     * <application
+     *    android:icon="@drawable/ic_launcher"
+     *    android:label="@string/app_name"
+     *    android:theme="@style/AppTheme" >
+     *    <receiver android:name="MyReceiver">
+     *
+     *       <intent-filter>
+     *          <action android:name="android.intent.action.BOOT_COMPLETED">
+     *          </action>
+     *       </intent-filter>
+     *
+     *    </receiver>
+     * </application>
+     *
+     */
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -150,6 +192,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.ble_spp);
 
         //获取蓝牙的名字和地址
+        // getIntent   Return the intent that started this activity.
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
@@ -166,6 +209,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         Button mCleanBtn = (Button) findViewById(R.id.clean_data_btn);
         Button mCleanTextBtn = (Button) findViewById(R.id.clean_text_btn);
 
+        // Register a callback to be invoked when this view is clicked. If this view is not clickable, it becomes clickable.
         mDataRecvFormat.setOnClickListener(this);
         mDataSendFormat.setOnClickListener(this);
         mRecvBytes.setOnClickListener(this);
@@ -174,10 +218,14 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         mCleanBtn.setOnClickListener(this);
         mSendBtn.setOnClickListener(this);
         mCleanTextBtn.setOnClickListener(this);
+        //ets the {@link android.text.method.MovementMethod} for handling arrow key movement for this TextView.
+        // This can be null to disallow using the arrow keys to move the cursor or scroll the view.
         mDataRecvText.setMovementMethod(ScrollingMovementMethod.getInstance());
         mData = new StringBuilder();
 
         final int SPEED = 1;
+
+        // 展示传输速度
         final Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -191,6 +239,17 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
             }
         };
 
+
+        /**
+         * Period in milliseconds for repeating tasks.  A positive value indicates
+         * fixed-rate execution.  A negative value indicates fixed-delay execution.
+         * A value of 0 indicates a non-repeating task.
+         *
+         * Message
+         * Defines a message containing a description and arbitrary data object that can be
+         * sent to a {@link Handler}.  This object contains two extra int fields and an
+         * extra object field that allow you to not do allocations in many cases.
+         */
         task = new TimerTask() {
             @Override
             public void run() {
@@ -205,15 +264,21 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         // 参数：
         // 1000，延时1秒后执行。
         // 1000，每隔2秒执行1次task。
+        // task是显示传输速率
         timer.schedule(task, 1000, 1000);
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // 绑定服务
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
+    // Activity重新开始的话，就要 动态注册 再次连接制定的设备地址了
+    // 广播主要分为两部分：广播发送者和广播接收者    广播接收者：分为静态注册和动态注册
+    // 静态注册：AndroidManifest中声明，PMS初始化时，通过解析AndroidManifest.xml，就能得到所有静态注册的BroadcastReceiver信息
+    // 动态注册：调用Context的registerReceiver函数注册BroadcastReceiver； 当应用程序不再需要监听广播时，则需要调用unregisterReceiver函数进行反注册
     @Override
     protected void onResume() {
         super.onResume();
@@ -224,12 +289,14 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    // Activity中断的话就要取消注册
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mGattUpdateReceiver);
     }
 
+    // Activity销毁的话就要解绑服务
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -237,6 +304,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         mBluetoothLeService = null;
     }
 
+    // 创建了选择菜单的时候，当连接上之后，连接按钮不显示，断开按钮显示  当断开连接之后，连接按钮显示，断开连接按钮不显示
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gatt_services, menu);
@@ -250,6 +318,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         return true;
     }
 
+    // 这是对选择菜单选中后的处理
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -266,6 +335,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         return super.onOptionsItemSelected(item);
     }
 
+    //更新连接状态，没有写
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
             @Override
@@ -274,6 +344,13 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
             }
         });
     }
+
+
+    /**
+    * Structured description of Intent values to be matched.  An IntentFilter can
+    * match against actions, categories, and data (either via its type, scheme,
+    * and/or path) in an Intent.  It also includes a "priority" value which is
+    * used to order multiple matching filters.*/
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -312,22 +389,25 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
 
     //获取输入框十六进制格式
     private String getHexString() {
+        // 已经通过ID找到的组件，可以直接通过getText获取内部的内容
         String s = mEditBox.getText().toString();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
+            //如果是数字或是大小写字母的话，把字符放到 StringBuilder 里面
             if (('0' <= c && c <= '9') || ('a' <= c && c <= 'f') ||
                     ('A' <= c && c <= 'F')) {
                 sb.append(c);
             }
         }
+        //如果StringBuilder的长度不是二的整数倍的话，删除最后一个字符
         if ((sb.length() % 2) != 0) {
             sb.deleteCharAt(sb.length());
         }
         return sb.toString();
     }
 
-
+    //把字符串转化为字节
     private byte[] stringToBytes(String s) {
         byte[] buf = new byte[s.length() / 2];
         for (int i = 0; i < buf.length; i++) {
@@ -340,6 +420,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         return buf;
     }
 
+    // 把ASCII转换为字符串
     public String asciiToString(byte[] bytes) {
         char[] buf = new char[bytes.length];
         StringBuilder sb = new StringBuilder();
@@ -350,6 +431,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         return sb.toString();
     }
 
+    // 把字节转换为字符串
     public String bytesToString(byte[] bytes) {
         final char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[bytes.length * 2];
@@ -366,7 +448,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         return sb.toString();
     }
 
-
+    // 得到要发送的内容
     private void getSendBuf(){
         sendIndex = 0;
         if (mDataSendFormat.getText().equals(getResources().getString(R.string.data_format_default))) {
@@ -376,6 +458,8 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         }
         sendDataLen = sendBuf.length;
     }
+
+    // 当发送按钮点击下去的时候
     private void onSendBtnClicked() {
         if (sendDataLen>20) {
             sendBytes += 20;
@@ -402,6 +486,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    // 展示数据
     private void displayData(byte[] buf) {
         recvBytes += buf.length;
         recv_cnt += buf.length;
@@ -423,6 +508,7 @@ public class BleSppActivity extends Activity implements View.OnClickListener {
         mRecvBytes.setText(recvBytes + " ");
     }
 
+    // 点击时候的反应
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
