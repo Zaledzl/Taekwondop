@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.taekwondop">
     <!--  -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_PRIVILEGED"
         tools:ignore="ProtectedPermissions" />
@@ -23,6 +24,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".TrainActivity"
+            android:label="跆拳道教学"/>
+        <activity android:name=".FightSettingActivity" />
         <activity
             android:name=".RecordActivity"
             android:label="比赛记录"
@@ -48,17 +52,23 @@
             android:label="跆拳道Fight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BLE.BleSppActivity"
-            tools:ignore="InnerclassSeparator"
-            android:theme="@style/MyTheme"/>
-        <activity android:name=".BLE.DeviceScanActivity"
-            tools:ignore="InnerclassSeparator"
+        <activity
+            android:name=".BLE.BleSppActivity"
+            android:theme="@style/MyTheme"
+            tools:ignore="InnerclassSeparator" />
+        <activity
+            android:name=".BLE.DeviceScanActivity"
             android:label="@string/app_name"
-            android:theme="@style/MyTheme"/>
-        <service android:name=".BLE.BluetoothLeService" android:enabled="true"
+            android:theme="@style/MyTheme"
+            tools:ignore="InnerclassSeparator" />
+
+        <service
+            android:name=".BLE.BluetoothLeService"
+            android:enabled="true"
             tools:ignore="InnerclassSeparator" />
     </application>
 

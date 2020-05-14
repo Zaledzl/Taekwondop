@@ -33,4 +33,8 @@
     <string name="zero">0</string>
     <string name="speed">0 B/s</string>
     <string name="ble_need_location">Android6.0蓝牙需要开启</string>
+
+    <string name="title_activity_fight_fullscreen">FightFullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

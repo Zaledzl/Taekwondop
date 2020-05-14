@@ -12,7 +12,7 @@ import com.example.taekwondop.BLE.DeviceScanActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button main_fight,main_help,main_setting,main_bluetooth,main_record;
+    private Button main_fight,main_help,main_setting,main_bluetooth,main_record,main_train;
 
 
     @Override
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         main_help= findViewById(R.id.main_help);
         main_fight = findViewById(R.id.main_fight);
         main_record = findViewById(R.id.main_record);
+        main_train = findViewById(R.id.main_train);
         //先根据控件ID找到控件，然后调用setListener
         setListener();
     }
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         main_setting.setOnClickListener(onclick);
         main_bluetooth.setOnClickListener(onclick);
         main_record.setOnClickListener(onclick);
+        main_train.setOnClickListener(onclick);
 
     }
 
@@ -63,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.main_record:
                     intent = new Intent(MainActivity.this, RecordActivity.class);
+                    break;
+                case R.id.main_train:
+                    intent = new Intent(MainActivity.this, TrainActivity.class);
                     break;
             }
             startActivity(intent);

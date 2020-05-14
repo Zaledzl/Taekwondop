@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FightSettingActivity">
+
+    <Button
+        android:id="@+id/et_fight_setting_finish2"
+        android:layout_width="236dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn2"
+        android:text="提交每场比赛时间"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_finish" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="119dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:text="红方名称:"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/et_fight_setting_red_name"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="119dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:text="蓝方名称:"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/et_fight_setting_blue_name"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="119dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:text="每场比赛时间:"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/et_fight_setting_fight"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="119dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:text="场间休息时间:"
+        android:textSize="18sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/et_fight_setting_rest"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/et_fight_setting_red_name"
+        android:layout_width="206dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Red Name"
+        android:inputType="textPersonName"
+        android:text="Red Name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/et_fight_setting_blue_name"
+        android:layout_width="206dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Blue Name"
+        android:inputType="textPersonName"
+        android:text="Blue Name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_red_name" />
+
+    <EditText
+        android:id="@+id/et_fight_setting_fight"
+        android:layout_width="186dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="120"
+        android:inputType="number"
+        android:text="120"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_blue_name" />
+
+    <EditText
+        android:id="@+id/et_fight_setting_rest"
+        android:layout_width="186dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="60"
+        android:inputType="number"
+        android:text="60"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_fight" />
+
+    <Button
+        android:id="@+id/et_fight_setting_finish"
+        android:layout_width="236dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/btn2"
+        android:text="提交比赛双方姓名"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_rest" />
+
+    <Button
+        android:id="@+id/et_fight_setting_finish3"
+        android:layout_width="236dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn2"
+        android:text="提交场间休息时间"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_fight_setting_finish2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

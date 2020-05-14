@@ -7,6 +7,19 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/main_train"
+        android:layout_width="280dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn2"
+        android:text="跆拳道教学"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_record" />
+
+    <Button
         android:id="@+id/main_fight"
         android:layout_width="269dp"
         android:layout_height="50dp"
