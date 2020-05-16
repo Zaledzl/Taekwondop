@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     intent = new Intent(MainActivity.this,HelpActivity.class);
                     break;
                 case R.id.main_setting:
-                    intent = new Intent(MainActivity.this, SettingActivity.class);
+                    intent = new Intent(MainActivity.this, FightSettingActivity.class);
                     break;
                 case R.id.main_record:
                     intent = new Intent(MainActivity.this, RecordActivity.class);

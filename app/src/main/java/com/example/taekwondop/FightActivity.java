@@ -4,12 +4,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FightActivity extends AppCompatActivity {
 
@@ -38,6 +43,7 @@ public class FightActivity extends AppCompatActivity {
     private TextView tv_count_down;
     private TextView tv_red_score;
     private TextView tv_blue_score;
+
 
     CountDownTimer timer;
 
@@ -130,6 +136,19 @@ public class FightActivity extends AppCompatActivity {
             }
         });
 
+        btn_fight_record.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(FightActivity.this, "已保存比赛结果", Toast.LENGTH_SHORT).show();
+                String date = getDateString();
+                save(date);
+//                Intent toDetail = new Intent(FightActivity.this,RecordDetailActivity.class);
+//                toDetail.putExtra(date,date);
+//                startActivity(toDetail);
+//                Log.d("进入函数 已经发送Intent","666");
+            }
+        });
+
         /**
          * 红方加分
          */
@@ -138,10 +157,10 @@ public class FightActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String tvredscore =tv_red_score.getText().toString();
-                Log.d("进入函数 加分点击 获取String:",tvredscore);
+//                Log.d("进入函数 加分点击 获取String:",tvredscore);
                 double  tvredscore1 = Double.parseDouble(tvredscore);
                 tvredscore1 = tvredscore1+1;
-                Log.d("进入函数 加分后",String.valueOf(tvredscore1));
+//                Log.d("进入函数 加分后",String.valueOf(tvredscore1));
                 tv_red_score.setText(String.valueOf(tvredscore1));
             }
         });
@@ -242,12 +261,47 @@ public class FightActivity extends AppCompatActivity {
             }
         });
 
-
-
 //        //先根据控件ID找到控件，然后调用setListener
 //        setListener();
 
     }
+
+    private String getDateString(){//获取当前系统时间(用做记录保存的键值)
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss ");
+        Date curDate = new Date(System.currentTimeMillis());//获取当前时间       
+        String str = formatter.format(curDate);
+        return str;
+    }
+
+    private void save(String date){//保存当前比赛信息并重置记录stringBuilder
+//        Log.d("进入函数 save","666");
+        SharedPreferences sharedPreferences = getSharedPreferences("Data",MODE_PRIVATE);
+        //步骤2： 实例化SharedPreferences.Editor对象
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        //步骤3：将获取过来的值放入文件
+//        sb.deleteCharAt(sb.length()-1);
+//        editor.putString(name,sb.toString());
+        String redName = tv_fight_red_name.getText().toString();
+        String blueName = tv_fight_blue_name.getText().toString();
+        String redScore = tv_red_score.getText().toString();
+        String blueScore = tv_blue_score.getText().toString();
+
+        String name1 = date+"red";
+        String name2 = date+"blue";
+
+        String redInfo = redName+" 得分 :"+redScore;
+        String blueInfo = blueName+" 得分 :"+blueScore;
+
+        editor.putString(date,date);
+        editor.putString(name1,redInfo);
+        editor.putString(name2,blueInfo);
+
+        //步骤4：提交
+        editor.apply();
+//        sb.delete(0,sb.length());
+//        Log.d("进入函数 数据保存提交没问题 :","666");
+    }
+
 
 //    //设置监听器 给每一个事件设置点击事件
 //    private void setListener(){

@@ -24,9 +24,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TrainActivity"
-            android:label="跆拳道教学"/>
-        <activity android:name=".FightSettingActivity" />
+        <activity android:name=".IntroductionActivity"></activity>
+        <activity android:name=".RecordDetailActivity" />
+        <activity
+            android:name=".TrainActivity"
+            android:label="跆拳道教学" />
+        <activity
+            android:name=".FightSettingActivity"
+            android:label="设置" />
         <activity
             android:name=".RecordActivity"
             android:label="比赛记录"
