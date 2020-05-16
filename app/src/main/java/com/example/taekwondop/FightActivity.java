@@ -92,7 +92,7 @@ public class FightActivity extends AppCompatActivity {
         btn_fight_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent  = new Intent(FightActivity.this,FightSettingActivity.class);
+                Intent intent  = new Intent(FightActivity.this,IntroductionActivity.class);
                 startActivity(intent);
             }
         });
@@ -132,6 +132,8 @@ public class FightActivity extends AppCompatActivity {
             public void onClick(View v) {
                 tv_red_score.setText("0");
                 tv_blue_score.setText("0");
+                tv_red_fine.setText("0");
+                tv_blue_fine.setText("0");
 
             }
         });
@@ -188,20 +190,32 @@ public class FightActivity extends AppCompatActivity {
         btn_red_warning.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tvredscore =tv_blue_score.getText().toString();
-                double  tvredscore1 = Double.parseDouble(tvredscore);
-                tvredscore1 = tvredscore1+0.5;
-                tv_blue_score.setText(String.valueOf(tvredscore1));
+                String tvbluescore =tv_blue_score.getText().toString();
+                double  tvbluescore1 = Double.parseDouble(tvbluescore);
+                tvbluescore1 = tvbluescore1+0.5;
+                tv_blue_score.setText(String.valueOf(tvbluescore1));
+
+                String tvredfine =tv_red_fine.getText().toString();
+                double  tvredfine1 = Double.parseDouble(tvredfine);
+                tvredfine1 = tvredfine1+0.5;
+                tv_red_fine.setText(String.valueOf(tvredfine1));
+
             }
         });
 
         btn_red_deduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tvredscore =tv_blue_score.getText().toString();
-                double  tvredscore1 = Double.parseDouble(tvredscore);
-                tvredscore1 = tvredscore1+1;
-                tv_blue_score.setText(String.valueOf(tvredscore1));
+                String tvbluescore =tv_blue_score.getText().toString();
+                double  tvbluescore1 = Double.parseDouble(tvbluescore);
+                tvbluescore1 = tvbluescore1+1;
+                tv_blue_score.setText(String.valueOf(tvbluescore1));
+
+                String tvredfine =tv_red_fine.getText().toString();
+                double  tvredfine1 = Double.parseDouble(tvredfine);
+                tvredfine1 = tvredfine1+1;
+                Log.d("进入函数 红方判罚后", String.valueOf(tvredfine1));
+                tv_red_fine.setText(String.valueOf(tvredfine1));
             }
         });
 
@@ -248,6 +262,11 @@ public class FightActivity extends AppCompatActivity {
                 double  tvredscore1 = Double.parseDouble(tvredscore);
                 tvredscore1 = tvredscore1+0.5;
                 tv_red_score.setText(String.valueOf(tvredscore1));
+
+                String tvbluefine =tv_blue_fine.getText().toString();
+                double  tvbluefine1 = Double.parseDouble(tvbluefine);
+                tvbluefine1 = tvbluefine1+0.5;
+                tv_blue_fine.setText(String.valueOf(tvbluefine1));
             }
         });
 
@@ -258,6 +277,11 @@ public class FightActivity extends AppCompatActivity {
                 double  tvredscore1 = Double.parseDouble(tvredscore);
                 tvredscore1 = tvredscore1+1;
                 tv_red_score.setText(String.valueOf(tvredscore1));
+
+                String tvbluefine =tv_blue_fine.getText().toString();
+                double  tvbluefine1 = Double.parseDouble(tvbluefine);
+                tvbluefine1 = tvbluefine1+1;
+                tv_blue_fine.setText(String.valueOf(tvbluefine1));
             }
         });
 
