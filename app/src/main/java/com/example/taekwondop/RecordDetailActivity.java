@@ -25,7 +25,6 @@ public class RecordDetailActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("进入函数 接受到了Intent :","666");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_detail);
         date_view=findViewById(R.id.date);
@@ -46,9 +45,9 @@ public class RecordDetailActivity extends Activity {
         String p1_info = getRecord(name1);
         String p2_info = getRecord(name2);
 
-        Log.d("进入函数 record:",record);
-        Log.d("进入函数 p1_info:",p1_info);
-        Log.d("进入函数 p2_info:",p2_info);
+//        Log.d("进入函数 record:",record);
+//        Log.d("进入函数 p1_info:",p1_info);
+//        Log.d("进入函数 p2_info:",p2_info);
         String[] list = helperForDelete(record);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list);
 //        detail_list.setAdapter(adapter);

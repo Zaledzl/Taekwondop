@@ -294,17 +294,17 @@ public class FightActivity extends AppCompatActivity {
         SimpleDateFormat formatter= new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss ");
         Date curDate = new Date(System.currentTimeMillis());//获取当前时间       
         String str = formatter.format(curDate);
+//        Log.d("进入函数 time",curDate.toString());
         return str;
     }
 
-    private void save(String date){//保存当前比赛信息并重置记录stringBuilder
-//        Log.d("进入函数 save","666");
+    //保存当前比赛信息
+    private void save(String date){
         SharedPreferences sharedPreferences = getSharedPreferences("Data",MODE_PRIVATE);
         //步骤2： 实例化SharedPreferences.Editor对象
         SharedPreferences.Editor editor = sharedPreferences.edit();
         //步骤3：将获取过来的值放入文件
-//        sb.deleteCharAt(sb.length()-1);
-//        editor.putString(name,sb.toString());
+
         String redName = tv_fight_red_name.getText().toString();
         String blueName = tv_fight_blue_name.getText().toString();
         String redScore = tv_red_score.getText().toString();
@@ -322,8 +322,6 @@ public class FightActivity extends AppCompatActivity {
 
         //步骤4：提交
         editor.apply();
-//        sb.delete(0,sb.length());
-//        Log.d("进入函数 数据保存提交没问题 :","666");
     }
 
 

@@ -9,7 +9,8 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- Google Play 会利用应用清单中声明的 <uses-feature> 元素，从不符合应用硬件和软件功能要求的设备上过滤该应用。 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <!-- Google Play 会利用应用清单中声明的 <uses-feature> 元素，从不符合应用硬件和软件功能要求的设备上过滤该应用。 -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
