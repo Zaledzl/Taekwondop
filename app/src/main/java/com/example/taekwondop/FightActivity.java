@@ -3,18 +3,32 @@ package com.example.taekwondop;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.taekwondop.BLE.BluetoothLeService;
+import com.example.taekwondop.util.ApplicationRecorder;
+import com.example.taekwondop.util.InfoCenter;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 public class FightActivity extends AppCompatActivity {
 
@@ -43,6 +57,9 @@ public class FightActivity extends AppCompatActivity {
     private TextView tv_count_down;
     private TextView tv_red_score;
     private TextView tv_blue_score;
+
+    private BluetoothLeServicep mBluetoothLeServicep;
+    private ApplicationRecorder app ;
 
 
     CountDownTimer timer;
@@ -88,6 +105,8 @@ public class FightActivity extends AppCompatActivity {
 //        et_fight_setting_blue_name = findViewById(R.id.et_fight_setting_blue_name);
 //        et_fight_setting_fight = findViewById(R.id.et_fight_setting_fight);
 //        et_fight_setting_rest = findViewById(R.id.et_fight_setting_rest);
+        connectConfirm();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         btn_fight_setting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -290,6 +309,64 @@ public class FightActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {  //重新注册recever 重新连接蓝牙服务
+        super.onResume();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        if (mBluetoothLeServicep != null) {
+            final boolean result = mBluetoothLeServicep.connect(app.getBluetoothMac());
+            Log.d("TAG", "Connect p1_head request result=" + result);
+        }
+    }
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BluetoothLeService.ACTION_WRITE_SUCCESSFUL);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_NO_DISCOVERED);
+        return intentFilter;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
+        if(mBluetoothLeServicep!=null)
+            mBluetoothLeServicep.disconnect();
+    }
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                //特征值找到才代表连接成功
+
+            }else if (BluetoothLeService.ACTION_GATT_SERVICES_NO_DISCOVERED.equals(action)){
+
+            }else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                // 得到字节码数据
+//                displayData(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA));
+            }else if (BluetoothLeService.ACTION_WRITE_SUCCESSFUL.equals(action)) {
+
+            }
+
+            HashMap<String,String> map = InfoCenter.messageBuff(intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA),app,1);
+            dealMessage(map);
+        }
+    };
+
+    private void dealMessage(HashMap<String,String> map){
+
+    }
+
     private String getDateString(){//获取当前系统时间(用做记录保存的键值)
         SimpleDateFormat formatter= new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss ");
         Date curDate = new Date(System.currentTimeMillis());//获取当前时间       
@@ -325,44 +402,7 @@ public class FightActivity extends AppCompatActivity {
     }
 
 
-//    //设置监听器 给每一个事件设置点击事件
-//    private void setListener(){
-//        //onclick实现了OnClick类
-//        OnClick onclick = new OnClick();
-//        btn_fight_blued1.setOnClickListener(onclick);
-//        btn_fight_blued2.setOnClickListener(onclick);
-//        btn_fight_blued3.setOnClickListener(onclick);
-//        btn_blue_warning.setOnClickListener(onclick);
-//        btn_blue_deduct.setOnClickListener(onclick);
-//        btn_fight_redd1.setOnClickListener(onclick);
-//        btn_fight_redd2.setOnClickListener(onclick);
-//        btn_fight_redd3.setOnClickListener(onclick);
-//        btn_red_warning.setOnClickListener(onclick);
-//        btn_red_deduct.setOnClickListener(onclick);
-//
-//
-//    }
 
-//    //OnClick 实现了 ONClickListener接口
-//    private class OnClick implements View.OnClickListener{
-//        @Override
-//        public void onClick(View v){
-//            Log.d("进入函数 加分点击:","ok");
-//            Intent intent = null;
-//            switch (v.getId()){
-//                case R.id.btn_fight_redd1:
-//                    String tvredscore =tv_red_score.getText().toString();
-//                    Log.d("进入函数 加分点击 获取String:",tvredscore);
-//                    int  tvredscore1 = Integer.parseInt(tvredscore);
-//                    tvredscore1 = tvredscore1+1;
-//                    Log.d("进入函数 加分后",String.valueOf(tvredscore1));
-//                    tv_red_score.setText("100");
-//                    break;
-//
-//            }
-//            startActivity(intent);
-//        }
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -428,5 +468,56 @@ public class FightActivity extends AppCompatActivity {
 
 //        Toast.makeText(FightActivity.this,data.getExtras().getString("title"), Toast.LENGTH_LONG).show();
     }
+
+
+    /**
+     * 绑定服务是客户端--服务器接口中的服务器。组件（如activity）和服务进行绑定后，可以发送请求、接收响应、执行进程间通信（IPC）。不会无限期在后台运行。
+     *
+     * 要提供服务绑定，必须实现onBind()回调方法，该方法返回的IBinder对象定义了客户端用来与服务进行交互的编程接口。
+     *
+     * 客户端可以通过调用bindService()绑定到服务。调用时，必须提供ServiceConnection的实现，后者会监控与服务的连接，当Android系统创建客户端与服务之间的连接时，
+     * 会对ServiceConnection回调onServiceConnected()，向客户端传递用来与服务通信的IBinder。当实现绑定服务的时候，最重要的环节是定义onBind()回调方法返回的接口。
+     */
+    private final ServiceConnection mServiceConnection1 = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeServicep = ((BluetoothLeServicep.LocalBinder) service).getService();
+            if (!mBluetoothLeServicep.initialize()) {
+                Log.e("无法初始化蓝牙", "Unable to initialize Bluetooth");
+                finish();
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+            String p1HeadAddress = app.getBluetoothMac();
+            mBluetoothLeServicep.connect(p1HeadAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeServicep = null;
+        }
+    };
+
+    private void connectConfirm(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(FightActivity.this);
+        builder.setTitle("提示");
+        builder.setMessage("检测到已设置通信蓝牙地址"+"\n"+"确认连接?");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(app.getBluetoothMac()!=null) {
+                    Intent gattServiceIntent1 = new Intent(FightActivity.this, BluetoothLeServicep.class);
+                    bindService(gattServiceIntent1, mServiceConnection1, BIND_AUTO_CREATE);
+                }
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
+    }
+
 
 }

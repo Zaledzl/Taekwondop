@@ -135,6 +135,7 @@ public class DeviceScanActivity extends ListActivity {
         return true;
     }
 
+    // 是否扫描设备 扫描函数是自己写的
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // scanLeDevice是自己写的一个函数

@@ -25,7 +25,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".IntroductionActivity"></activity>
+        <activity android:name=".IntroductionActivity" />
         <activity android:name=".RecordDetailActivity" />
         <activity
             android:name=".TrainActivity"
@@ -73,7 +73,7 @@
             tools:ignore="InnerclassSeparator" />
 
         <service
-            android:name=".BLE.BluetoothLeService"
+            android:name=".BluetoothLeServicep"
             android:enabled="true"
             tools:ignore="InnerclassSeparator" />
     </application>
