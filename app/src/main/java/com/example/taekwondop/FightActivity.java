@@ -14,29 +14,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.taekwondop.BLE.BluetoothLeService;
 import com.example.taekwondop.util.ApplicationRecorder;
-import com.example.taekwondop.util.InfoCenter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import static com.example.taekwondop.BLE.BleSppActivity.EXTRAS_DEVICE_ADDRESS;
-import static com.example.taekwondop.BLE.BleSppActivity.EXTRAS_DEVICE_NAME;
 
 public class FightActivity extends AppCompatActivity {
 
@@ -105,7 +97,11 @@ public class FightActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        Log.d("进入函数 得到地址",mDeviceAddress);
+//        Log.d("进入函数 得到地址",mDeviceAddress);
+        if(mDeviceAddress!=null){
+            Log.d("进入函数 得到地址",mDeviceAddress);
+
+        }
 
         btn_blue_deduct = findViewById(R.id.btn_blue_deduct);
         btn_blue_warning = findViewById(R.id.btn_blue_warning);
@@ -342,6 +338,12 @@ public class FightActivity extends AppCompatActivity {
 
 //        //先根据控件ID找到控件，然后调用setListener
 //        setListener();
+        /**
+         * 补点东西
+         */
+        // 绑定服务
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
     }
 
@@ -379,7 +381,7 @@ public class FightActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection1);
+        unbindService(mServiceConnection);
         mBluetoothLeService = null;
     }
 
@@ -397,6 +399,7 @@ public class FightActivity extends AppCompatActivity {
         @SuppressLint("LongLogTag")
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d("进入函数 收到Action","收到Action");
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.d("ACTION_GATT_CONNECTED","ACTION_GATT_CONNECTED");
@@ -417,6 +420,64 @@ public class FightActivity extends AppCompatActivity {
                 // 得到字节码数据
                 Log.d("ACTION_DATA_AVAILABLE","ACTION_DATA_AVAILABLE");
 //                displayData(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA));
+                Log.d("进入函数 输出信息",intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA).toString());
+                Log.d("进入函数 输出信息",bytesToString(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA)));
+
+                String code = bytesToString(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA));
+                Log.d("进入函数 code",code);
+//                String codee = "F628F6280124801A000600031072C29DA5A5A5A5";
+//                Log.d("进入函数 code",codee);
+//                Log.d("进入函数 codee", String.valueOf(code.equals(codee)));
+                code = code.substring(20,24);
+                Log.d("进入函数 缩减后的code",code);
+
+                switch (code){
+                    case "0002":
+                        String tvbluescore =tv_blue_score.getText().toString();
+                        double  tvbluescore1 = Double.parseDouble(tvbluescore);
+                        tvbluescore1 = tvbluescore1+1;
+                        tv_blue_score.setText(String.valueOf(tvbluescore1));
+                        break;
+                    case "0003":
+                        String tvbluescore2 =tv_blue_score.getText().toString();
+                        double  tvbluescore3 = Double.parseDouble(tvbluescore2);
+                        tvbluescore3 = tvbluescore3+3;
+                        tv_blue_score.setText(String.valueOf(tvbluescore3));
+                        break;
+                    case "0200":
+                        String tvredscore =tv_red_score.getText().toString();
+                        double  tvredscore1 = Double.parseDouble(tvredscore);
+                        tvredscore1 = tvredscore1+1;
+                        tv_red_score.setText(String.valueOf(tvredscore1));
+                        break;
+                    case "0300":
+                        String tvredscore2 =tv_red_score.getText().toString();
+                        double  tvredscore3 = Double.parseDouble(tvredscore2);
+                        tvredscore3 = tvredscore3+3;
+                        tv_red_score.setText(String.valueOf(tvredscore3));
+                        break;
+                    case "0100":
+                        String tvredscore4 =tv_red_score.getText().toString();
+                        double  tvredscore5 = Double.parseDouble(tvredscore4);
+                        tvredscore5 = tvredscore5-1;
+                        tv_red_score.setText(String.valueOf(tvredscore5));
+                        break;
+                    case "0001":
+                        String tvbluescore4 =tv_blue_score.getText().toString();
+                        double  tvbluescore5 = Double.parseDouble(tvbluescore4);
+                        tvbluescore5 = tvbluescore5-1;
+                        tv_blue_score.setText(String.valueOf(tvbluescore5));
+                        break;
+                    default:
+                        Log.v("Tag进入函数","codecodecode");
+                        break;
+                }
+                if(code.equals("F628F6280137801A00060003105FC29DA5A5A5A5")){
+                    Log.d("进入函数 if了","if");
+                }
+
+
+
             }else if (BluetoothLeService.ACTION_WRITE_SUCCESSFUL.equals(action)) {
                 Log.d("ACTION_WRITE_SUCCESSFUL","ACTION_WRITE_SUCCESSFUL");
                 if (sendDataLen>0)
@@ -428,9 +489,9 @@ public class FightActivity extends AppCompatActivity {
                 }
             }
 
-            HashMap<String,String> map = InfoCenter.messageBuffer(intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA));
-            Log.d("进入函数 接收信息",intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA).toString());
-            dealMessage(map);
+//            HashMap<String,String> map = InfoCenter.messageBuffer(intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA));
+//            Log.d("进入函数 接收信息",intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA).toString());
+//            dealMessage(map);
         }
     };
 
@@ -587,24 +648,27 @@ public class FightActivity extends AppCompatActivity {
      * 客户端可以通过调用bindService()绑定到服务。调用时，必须提供ServiceConnection的实现，后者会监控与服务的连接，当Android系统创建客户端与服务之间的连接时，
      * 会对ServiceConnection回调onServiceConnected()，向客户端传递用来与服务通信的IBinder。当实现绑定服务的时候，最重要的环节是定义onBind()回调方法返回的接口。
      */
-    private final ServiceConnection mServiceConnection1 = new ServiceConnection() {
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.d("进入函数 连接服务","onServiceConnected");
-            mBluetoothLeServicep = ((BluetoothLeServicep.LocalBinder) service).getService();
-            if (!mBluetoothLeServicep.initialize()) {
-                Log.e("无法初始化蓝牙", "Unable to initialize Bluetooth");
+            // Activity与Service的通信方式有三种:其中第一种也是最简单的一种, 即LocalBinder方式
+            //特点:Activity和Service位于同一个进程内, 简单,方便,可以实现activity和service之间的函数互相调用.
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            // 如果初始化蓝牙服务失败，那就说明失败
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
+            // 根据设备地址，用蓝牙服务连接到设备
             // Automatically connects to the device upon successful start-up initialization.
-            String p1HeadAddress = app.getBluetoothMac();
-            mBluetoothLeServicep.connect(p1HeadAddress);
+            mBluetoothLeService.connect(mDeviceAddress);
         }
 
+        // 在蓝牙服务断开连接的时候，要把初始化的实例赋值为NULL
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mBluetoothLeServicep = null;
+            mBluetoothLeService = null;
         }
     };
 
@@ -617,7 +681,7 @@ public class FightActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(app.getBluetoothMac()!=null) {
                     Intent gattServiceIntent1 = new Intent(FightActivity.this, BluetoothLeServicep.class);
-                    bindService(gattServiceIntent1, mServiceConnection1, BIND_AUTO_CREATE);
+                    bindService(gattServiceIntent1, mServiceConnection, BIND_AUTO_CREATE);
                     Log.d("进入函数 bindService","bindService");
                 }
             }
@@ -630,7 +694,21 @@ public class FightActivity extends AppCompatActivity {
         builder.show();
     }
 
+    public static String bytesToString(byte[] bytes) {
+        final char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            int v = bytes[i] & 0xFF;
+            hexChars[i * 2] = hexArray[v >>> 4];
+            hexChars[i * 2 + 1] = hexArray[v & 0x0F];
 
+            sb.append(hexChars[i * 2]);
+            sb.append(hexChars[i * 2 + 1]);
+//            sb.append(' ');  这个空格是为了有时候观察方便
+        }
+        return sb.toString();
+    }
 
 
 }

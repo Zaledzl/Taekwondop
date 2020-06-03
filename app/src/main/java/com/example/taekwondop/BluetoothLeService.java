@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.taekwondop.BLE;
+package com.example.taekwondop;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -32,35 +32,23 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.taekwondop.BLE.BleSppGattAttributes;
+
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
- *
- * Services 服务是运行在后台，执行长时间操作的组件。举个例子，服务可以是用户在使用不同的程序时在后台播放音乐，或者在活动中通过网络获取数据但不阻塞用户交互。
  */
-
-/**Basic Rate / Enhanced Data Rate (BR/EDR)基础速率和增强速率
- *BLE协议栈基于Attribute Protocol，定义了一个称作GATT（Generic Attribute）的profile framework（它本身也是一个profile），用于提供通用的、信息的存储和共享等功能。
- * BLE开发过程中必须了解的两个协议：GAP（通用访问协议）、GATT（通用属性协议）。
- * 两个协议都隶属于Host层，直接关系到应用层开发，与BLE开发人员的关系比较密切，其分别负责连接前数据广播和连接后的数据传输。
- *  通用属性配置文件(GATT)在属性协议(ATT)的基础上构建，为属性协议传输和存储数据建立了一些通用操作和框架。
- */
-
-//起名 蓝牙低功耗服务
 public class BluetoothLeService extends Service {
-
-    //Class.getName()：以String的形式，返回Class对象的“实体”名称；
-    //Class.getSimpleName()：获取源代码中给出的“底层类”简称。
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    //ble characteristic    Represents a Bluetooth GATT Characteristic
+    //ble characteristic
     private BluetoothGattCharacteristic mNotifyCharacteristic;
     private BluetoothGattCharacteristic mWriteCharacteristic;
 
@@ -87,11 +75,10 @@ public class BluetoothLeService extends Service {
 
     public final static UUID UUID_BLE_SPP_NOTIFY = UUID.fromString(BleSppGattAttributes.BLE_SPP_Notify_Characteristic);
 
-    // Implements callback methods for GATT events that the app cares about.  For example,connection change and services discovered.
-    // 为应用程序关心的GATT事件实现回调方法。例如，发现连接更改和服务。
+    // Implements callback methods for GATT events that the app cares about.  For example,
+    // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
-        // 连接方式改变的时候
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -112,7 +99,6 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
-        // 当服务被发现的时候
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 // 默认先使用 B-0006/TL8266 服务发现
@@ -150,7 +136,6 @@ public class BluetoothLeService extends Service {
 
 
         @Override
-        // 当特征被读取的时候
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
@@ -160,7 +145,6 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
-        // 当特征被改变的时候
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
@@ -168,7 +152,6 @@ public class BluetoothLeService extends Service {
 
         //Will call this when write successful
         @Override
-        // 当特征被写的时候
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_WRITE_SUCCESSFUL);
@@ -177,13 +160,11 @@ public class BluetoothLeService extends Service {
         }
     };
 
-    // 更新广播
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
 
-    // 更新广播
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
