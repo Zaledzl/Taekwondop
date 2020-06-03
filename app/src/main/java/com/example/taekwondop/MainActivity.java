@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.taekwondop.BLE.DeviceScanActivity;
+//import com.example.taekwondop.BLE.DeviceScanActivity;
 
 public class MainActivity extends AppCompatActivity {
 

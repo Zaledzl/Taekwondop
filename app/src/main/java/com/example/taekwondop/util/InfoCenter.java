@@ -76,12 +76,27 @@ public  class InfoCenter {
         String test = bytesToString(data);
         Log.v(TAG,"缓冲池记录:"+test);
         HashMap<String, String> map = new HashMap<String, String>();
-        if(data.length==15||data.length==18){  //新版通信协议仅仅只有8003(8000)超过20字节
-//            return mode==1?dealMessage(data,app):dealMessageConnect(data,app);
+        int power = byteArrayToInt(data);
+        if(power<3400){
+            map.put("power","power_low");
         }
- 
-        map.put("result","不处理");
-        map.put("reason","异常格式");
+
+        if(test.equals("8004")){
+            map.put("name","red_head");
+        };
+        if(test.equals("8005")){
+            map.put("name","red_body");
+        };
+        if(test.equals("8006")){
+            map.put("name","blue_head");
+        };
+        if(test.equals("8007")){
+            map.put("name","blue_body");
+        };
+
+
+
+
         return map;
     }
 

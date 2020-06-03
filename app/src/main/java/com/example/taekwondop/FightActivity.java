@@ -3,7 +3,9 @@ package com.example.taekwondop;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,9 +15,11 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,11 +31,31 @@ import com.example.taekwondop.util.ApplicationRecorder;
 import com.example.taekwondop.util.InfoCenter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import static com.example.taekwondop.BLE.BleSppActivity.EXTRAS_DEVICE_ADDRESS;
+import static com.example.taekwondop.BLE.BleSppActivity.EXTRAS_DEVICE_NAME;
+
 public class FightActivity extends AppCompatActivity {
 
+    private final static String TAG = FightActivity.class.getSimpleName();
+
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    static long recv_cnt = 0;
+
+    private String mDeviceName;
+    private String mDeviceAddress;
+    private BluetoothLeService mBluetoothLeService;
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
+            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+    private boolean mConnected = false;
+
+    private final String LIST_NAME = "NAME";
+    private final String LIST_UUID = "UUID";
     private Button btn_fight_begin;
     private Button btn_fight_resume;
     private Button btn_fight_setting;
@@ -61,6 +85,11 @@ public class FightActivity extends AppCompatActivity {
     private BluetoothLeServicep mBluetoothLeServicep;
     private ApplicationRecorder app ;
 
+    int sendIndex = 0;
+    int sendDataLen=0;
+    byte[] sendBuf;
+
+
 
     CountDownTimer timer;
 
@@ -70,6 +99,13 @@ public class FightActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fight);
+
+        //获取蓝牙的名字和地址
+        // getIntent   Return the intent that started this activity.
+        final Intent intent = getIntent();
+        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        Log.d("进入函数 得到地址",mDeviceAddress);
 
         btn_blue_deduct = findViewById(R.id.btn_blue_deduct);
         btn_blue_warning = findViewById(R.id.btn_blue_warning);
@@ -105,7 +141,7 @@ public class FightActivity extends AppCompatActivity {
 //        et_fight_setting_blue_name = findViewById(R.id.et_fight_setting_blue_name);
 //        et_fight_setting_fight = findViewById(R.id.et_fight_setting_fight);
 //        et_fight_setting_rest = findViewById(R.id.et_fight_setting_rest);
-        connectConfirm();
+//        connectConfirm();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
 
         btn_fight_setting.setOnClickListener(new View.OnClickListener() {
@@ -309,6 +345,8 @@ public class FightActivity extends AppCompatActivity {
 
     }
 
+
+
     @Override
     protected void onResume() {  //重新注册recever 重新连接蓝牙服务
         super.onResume();
@@ -338,33 +376,104 @@ public class FightActivity extends AppCompatActivity {
             mBluetoothLeServicep.disconnect();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mServiceConnection1);
+        mBluetoothLeService = null;
+    }
+
+    private void updateConnectionState(final int resourceId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // mConnectionState.setText(resourceId);
+            }
+        });
+    }
+
+
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @SuppressLint("LongLogTag")
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-
+                Log.d("ACTION_GATT_CONNECTED","ACTION_GATT_CONNECTED");
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                mBluetoothLeService.connect(mDeviceAddress);
+                Log.d("ACTION_GATT_DISCONNECTED","ACTION_GATT_DISCONNECTED");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 //特征值找到才代表连接成功
-
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                Log.d("ACTION_GATT_SERVICES_DISCOVERED","ACTION_GATT_SERVICES_DISCOVERED");
             }else if (BluetoothLeService.ACTION_GATT_SERVICES_NO_DISCOVERED.equals(action)){
-
+                mBluetoothLeService.connect(mDeviceAddress);
+                Log.d("ACTION_GATT_SERVICES_NO_DISCOVERED","ACTION_GATT_SERVICES_NO_DISCOVERED");
             }else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 // 得到字节码数据
+                Log.d("ACTION_DATA_AVAILABLE","ACTION_DATA_AVAILABLE");
 //                displayData(intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA));
             }else if (BluetoothLeService.ACTION_WRITE_SUCCESSFUL.equals(action)) {
-
+                Log.d("ACTION_WRITE_SUCCESSFUL","ACTION_WRITE_SUCCESSFUL");
+                if (sendDataLen>0)
+                {
+                    Log.v("log","Write OK,Send again");
+                }
+                else {
+                    Log.v("log","Write Finish");
+                }
             }
 
-            HashMap<String,String> map = InfoCenter.messageBuff(intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA),app,1);
+            HashMap<String,String> map = InfoCenter.messageBuffer(intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA));
+            Log.d("进入函数 接收信息",intent.getByteArrayExtra(BluetoothLeServicep.EXTRA_DATA).toString());
             dealMessage(map);
         }
     };
 
-    private void dealMessage(HashMap<String,String> map){
+    final int SPEED = 1;
 
+
+
+    private void dealMessage(HashMap<String,String> map){
+        String name = map.get("name");
+        tv_red_score = findViewById(R.id.tv_red_score);
+        tv_blue_score = findViewById(R.id.tv_blue_score);
+        String power = map.get("power");
+        if(power.equals("power_low")){
+            Toast.makeText(FightActivity.this, "电池电量低", Toast.LENGTH_SHORT).show();
+        }
+        switch (name){
+            case "red_head":
+                String tvbluescore =tv_blue_score.getText().toString();
+                double  tvbluescore1 = Double.parseDouble(tvbluescore);
+                tvbluescore1 = tvbluescore1+3;
+                tv_blue_score.setText(String.valueOf(tvbluescore1));
+            case "red_body":
+                String tvbluescore2 =tv_blue_score.getText().toString();
+                double  tvbluescore3 = Double.parseDouble(tvbluescore2);
+                tvbluescore3 = tvbluescore3+1;
+                tv_blue_score.setText(String.valueOf(tvbluescore3));
+                break;
+            case "blue_head":
+                String tvredscore =tv_red_score.getText().toString();
+                double  tvredscore1 = Double.parseDouble(tvredscore);
+                tvredscore1 = tvredscore1+3;
+                tv_red_score.setText(String.valueOf(tvredscore1));
+                break;
+            case "blue_body":
+                String tvredscore2 =tv_red_score.getText().toString();
+                double  tvredscore3 = Double.parseDouble(tvredscore2);
+                tvredscore3 = tvredscore3+1;
+                tv_red_score.setText(String.valueOf(tvredscore3));
+                break;
+            default:
+                Log.v("Tag进入函数","检测到无法确定来源的心跳码");
+                break;
+        }
     }
 
     private String getDateString(){//获取当前系统时间(用做记录保存的键值)
@@ -420,7 +529,7 @@ public class FightActivity extends AppCompatActivity {
             timer = new CountDownTimer(ft*1000, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-//                    Log.d("进入函数 onTick", "进入函数 onTick");
+//                    Log.d("进入函数 onTick", "进入函数+ onTick");
                     tv_count_down.setText(String.valueOf(millisUntilFinished / 1000)) ;
                 }
 
@@ -482,6 +591,7 @@ public class FightActivity extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.d("进入函数 连接服务","onServiceConnected");
             mBluetoothLeServicep = ((BluetoothLeServicep.LocalBinder) service).getService();
             if (!mBluetoothLeServicep.initialize()) {
                 Log.e("无法初始化蓝牙", "Unable to initialize Bluetooth");
@@ -501,13 +611,14 @@ public class FightActivity extends AppCompatActivity {
     private void connectConfirm(){
         AlertDialog.Builder builder = new AlertDialog.Builder(FightActivity.this);
         builder.setTitle("提示");
-        builder.setMessage("检测到已设置通信蓝牙地址"+"\n"+"确认连接?");
+        builder.setMessage("已检测到蓝牙设备地址"+"\n"+"是否连接？");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(app.getBluetoothMac()!=null) {
                     Intent gattServiceIntent1 = new Intent(FightActivity.this, BluetoothLeServicep.class);
                     bindService(gattServiceIntent1, mServiceConnection1, BIND_AUTO_CREATE);
+                    Log.d("进入函数 bindService","bindService");
                 }
             }
         });
@@ -518,6 +629,8 @@ public class FightActivity extends AppCompatActivity {
         });
         builder.show();
     }
+
+
 
 
 }

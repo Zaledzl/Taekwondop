@@ -17,17 +17,26 @@
 package com.example.taekwondop.BLE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import androidx.core.app.ActivityCompat;
+//import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,9 +47,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
+import com.example.taekwondop.FightActivity;
 import com.example.taekwondop.R;
 
 import java.util.ArrayList;
@@ -82,6 +89,7 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         //传统
+        Log.d("进入函数onCreate","工作");
         super.onCreate(savedInstanceState);
         getActionBar().setTitle(R.string.title_devices);
         mHandler = new Handler();
@@ -115,6 +123,7 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("进入函数创建菜单","创建菜单");
         //LayoutInflater是用来实例化整个布局文件，而 MenuInflater是用来实例化Menu目录下的Menu布局文件的。
         //传统意义上的菜单定义需要Override Activity的onCreateOptionsMenu，然后在里面调用Menu.add把Menu的一个个item加进来，比较复杂。
         // 而通过使用MenuInflater可以把Menu的构造直接放在Menu布局文件中，真正实现模型（Model）与视图（View）的分离，程序也看着清爽多了。
@@ -138,6 +147,7 @@ public class DeviceScanActivity extends ListActivity {
     // 是否扫描设备 扫描函数是自己写的
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("进入函数菜单选中","菜单选中");
         // scanLeDevice是自己写的一个函数
         switch (item.getItemId()) {
             case R.id.menu_scan:
@@ -197,9 +207,9 @@ public class DeviceScanActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
-        final Intent intent = new Intent(this, BleSppActivity.class);
-        intent.putExtra(BleSppActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(BleSppActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        final Intent intent = new Intent(this, FightActivity.class);
+        intent.putExtra(FightActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(FightActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
@@ -209,6 +219,7 @@ public class DeviceScanActivity extends ListActivity {
 
     // 调用scanLeDevice 要给这个函数传递一个boolean
     private void scanLeDevice(final boolean enable) {
+        Log.d("进入函数 扫描","扫描");
         //
         if (enable) {
             // Stops scanning after a pre-defined scan period.  在预先定义的扫描时间过去停止扫描
@@ -259,7 +270,7 @@ public class DeviceScanActivity extends ListActivity {
             }
         }
 
-        // 通过为止得到设备的信息
+        // 通过位置得到设备的信息
         public BluetoothDevice getDevice(int position) {
             return mLeDevices.get(position);
         }
@@ -315,10 +326,10 @@ public class DeviceScanActivity extends ListActivity {
     }
 
     // Device scan callback.
+//    Callback interface used to deliver LE scan results.
     // 用于传递LE扫描结果的回调接口
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
-
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     runOnUiThread(new Runnable() {

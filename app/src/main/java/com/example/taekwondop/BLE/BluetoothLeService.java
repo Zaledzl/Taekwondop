@@ -60,7 +60,7 @@ public class BluetoothLeService extends Service {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    //ble characteristic
+    //ble characteristic    Represents a Bluetooth GATT Characteristic
     private BluetoothGattCharacteristic mNotifyCharacteristic;
     private BluetoothGattCharacteristic mWriteCharacteristic;
 
